@@ -6,8 +6,11 @@
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-latest
+pool: Default
+
+variables:
+  - name: Aplication
+    value: 'Crud-Cliente'
 
 steps:
 - task: NodeTool@0
