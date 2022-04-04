@@ -1,0 +1,75 @@
+service: aws-lambda-node-crud
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-west-1
+  iamRoleStaments:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-west-1:865263598570:table/ProductoTable
+  
+
+functions:
+  hello:
+    handler: src/handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+  create:
+    handler: src/addProduct.addProduct
+    events:
+      - httpApi:
+          path: /productos
+          method: post
+  getAll:
+    handler: src/getProducts.getProducts
+    events:
+      - httpApi:
+          path: /productos
+          method: get
+  getProducto:
+    handler: src/getProduct.getProduct
+    events:
+      - httpApi:
+          path: /productos/{id}
+          method: get
+  updateProducto:
+    handler: src/updateProduct.updateProduct
+    events:
+      - httpApi:
+          path: /productos/{id}
+          method: put
+  deleteProducto:
+    handler: src/deleteProduct.deleteProduct
+    events:
+      - httpApi:
+          path: /productos/{id}
+          method: delete
+  createProductoSQS:
+    handler: src/addProductSQS.addProductSQS
+    events:
+      - sqs:
+        arn: arn:aws:sqs:us-west-1:865263598570:MySQS-crud-Producto
+        batchSize: 10
+        maximumBatchingWindow: 60
+        functionResponseType: ReportBatchItemFailures
+
+
+resources:
+  Resources:
+    ProductoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ProductoTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
